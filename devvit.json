@@ -1,0 +1,90 @@
+{
+  "$schema": "https://developers.reddit.com/schema/config-file.v1.json",
+  "name": "crisismod",
+  "server": {
+    "dir": "dist/server",
+    "entry": "index.cjs"
+  },
+  "menu": {
+    "items": [
+      {
+        "label": "Configure CrisisMod",
+        "description": "Set subreddit moderation thresholds, Shield Mode defaults, appeal templates, and alert settings.",
+        "location": "subreddit",
+        "forUserType": "moderator",
+        "endpoint": "/internal/menu/configure-crisismod"
+      },
+      {
+        "label": "Activate Shield Mode",
+        "description": "Temporarily tighten moderation thresholds for raids, brigading, spam waves, or viral incidents.",
+        "location": "subreddit",
+        "forUserType": "moderator",
+        "endpoint": "/internal/menu/activate-shield-mode"
+      },
+      {
+        "label": "Deactivate Shield Mode",
+        "description": "Turn off Shield Mode and restore normal moderation thresholds.",
+        "location": "subreddit",
+        "forUserType": "moderator",
+        "endpoint": "/internal/menu/deactivate-shield-mode"
+      },
+      {
+        "label": "Generate Weekly Report",
+        "description": "Create a CrisisMod moderation health report for the current subreddit.",
+        "location": "subreddit",
+        "forUserType": "moderator",
+        "endpoint": "/internal/menu/generate-weekly-report"
+      },
+      {
+        "label": "Send Post To CrisisMod Triage",
+        "description": "Score this post with CrisisMod and add it to the triage queue.",
+        "location": "post",
+        "forUserType": "moderator",
+        "endpoint": "/internal/menu/triage-post"
+      },
+      {
+        "label": "Send Comment To CrisisMod Triage",
+        "description": "Score this comment with CrisisMod and add it to the triage queue.",
+        "location": "comment",
+        "forUserType": "moderator",
+        "endpoint": "/internal/menu/triage-comment"
+      }
+    ]
+  },
+  "forms": {
+    "configureCrisisMod": "/internal/form/configure-crisismod-submit",
+    "activateShieldMode": "/internal/form/activate-shield-mode-submit",
+    "deactivateShieldMode": "/internal/form/deactivate-shield-mode-submit",
+    "manualTriagePost": "/internal/form/manual-triage-submit",
+    "manualTriageComment": "/internal/form/manual-triage-submit",
+    "generateWeeklyReport": "/internal/form/generate-weekly-report-submit"
+  },
+  "triggers": {
+    "onAppInstall": "/internal/triggers/on-app-install",
+    "onPostSubmit": "/internal/triggers/on-post-submit",
+    "onCommentSubmit": "/internal/triggers/on-comment-submit",
+    "onPostReport": "/internal/triggers/on-post-report",
+    "onCommentReport": "/internal/triggers/on-comment-report",
+    "onAutomoderatorFilterPost": "/internal/triggers/on-automoderator-filter-post",
+    "onAutomoderatorFilterComment": "/internal/triggers/on-automoderator-filter-comment",
+    "onModMail": "/internal/triggers/on-mod-mail"
+  },
+  "scheduler": {
+    "tasks": {
+      "shieldModeExpire": {
+        "endpoint": "/internal/tasks/shield-mode-expire"
+      },
+      "weeklyReportGenerate": {
+        "endpoint": "/internal/tasks/weekly-report-generate"
+      }
+    }
+  },
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite build --watch"
+  },
+  "permissions": {
+    "reddit": true,
+    "redis": true
+  }
+}

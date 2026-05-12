@@ -12,59 +12,41 @@ import {
   validateQueueActionPayload,
   validateQueueScorePayload,
 } from './queue-triage.schema';
+import { jsonError, jsonSuccess } from '../../routes/response';
 
 export const getQueueItemsHandler = async (c: HonoContext) => {
   const requestContext = await getRuntimeRequestContext(c);
   const items = await getQueueItems(requestContext.subredditId);
 
-  return c.json(
-    {
-      success: true,
-      data: {
-        items,
-      },
-    },
-    200
-  );
+  return jsonSuccess(c, {
+    items,
+  });
 };
 
 export const scoreQueueItemHandler = async (c: HonoContext) => {
   const payload = validateQueueScorePayload(await c.req.json());
   if (!payload.ok) {
-    return c.json(
-      {
-        success: false,
-        errors: payload.errors,
-      },
-      400
-    );
+    return jsonError(c, payload.errors);
   }
 
   const requestContext = await getRuntimeRequestContext(c);
   const item = await scoreQueueItem(requestContext, payload.data);
 
-  return c.json(
+  return jsonSuccess(
+    c,
     {
-      success: true,
-      message: 'Queue item scored and stored.',
-      data: {
-        item,
-      },
+      item,
     },
-    200
+    {
+      message: 'Queue item scored and stored.',
+    }
   );
 };
 
 export const applyQueueActionHandler = async (c: HonoContext) => {
   const payload = validateQueueActionPayload(await c.req.json());
   if (!payload.ok) {
-    return c.json(
-      {
-        success: false,
-        errors: payload.errors,
-      },
-      400
-    );
+    return jsonError(c, payload.errors);
   }
 
   const requestContext = await getRuntimeRequestContext(c);
@@ -72,35 +54,26 @@ export const applyQueueActionHandler = async (c: HonoContext) => {
   try {
     item = await applyQueueAction(requestContext, payload.data);
   } catch (error) {
-    return c.json(
-      {
-        success: false,
-        errors: ['Failed to apply the Reddit moderation action.'],
-        detail: error instanceof Error ? error.message : 'Unknown error',
-      },
-      500
-    );
+    return jsonError(c, ['Failed to apply the Reddit moderation action.'], {
+      detail: error instanceof Error ? error.message : 'Unknown error',
+      status: 500,
+    });
   }
 
   if (!item) {
-    return c.json(
-      {
-        success: false,
-        errors: ['Queue item not found.'],
-      },
-      404
-    );
+    return jsonError(c, ['Queue item not found.'], {
+      status: 404,
+    });
   }
 
-  return c.json(
+  return jsonSuccess(
+    c,
     {
-      success: true,
-      message: 'Queue action recorded.',
-      data: {
-        item,
-      },
+      item,
     },
-    200
+    {
+      message: 'Queue action recorded.',
+    }
   );
 };
 
@@ -109,28 +82,16 @@ export const getQueueAuditHandler = async (c: HonoContext) => {
   const limit = validateLimit(c.req.query('limit'));
   const logs = await getQueueAuditLogs(requestContext.subredditId, limit);
 
-  return c.json(
-    {
-      success: true,
-      data: {
-        logs,
-      },
-    },
-    200
-  );
+  return jsonSuccess(c, {
+    logs,
+  });
 };
 
 export const getQueueSummaryHandler = async (c: HonoContext) => {
   const requestContext = await getRuntimeRequestContext(c);
   const summary = await getQueueSummary(requestContext.subredditId);
 
-  return c.json(
-    {
-      success: true,
-      data: {
-        summary,
-      },
-    },
-    200
-  );
+  return jsonSuccess(c, {
+    summary,
+  });
 };

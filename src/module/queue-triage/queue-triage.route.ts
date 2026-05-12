@@ -1,4 +1,5 @@
 import { Hono } from 'hono';
+import type { ApiRouteModule } from '../../routes/api-module';
 import {
   applyQueueActionHandler,
   getQueueAuditHandler,
@@ -14,3 +15,8 @@ queueTriageRoute.post('/score', scoreQueueItemHandler);
 queueTriageRoute.post('/action', applyQueueActionHandler);
 queueTriageRoute.get('/audit', getQueueAuditHandler);
 queueTriageRoute.get('/summary', getQueueSummaryHandler);
+
+export const queueTriageApiModule: ApiRouteModule = {
+  basePath: '/queue-triage',
+  route: queueTriageRoute,
+};

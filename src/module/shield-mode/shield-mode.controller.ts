@@ -19,6 +19,7 @@ import {
   cancelScheduledJob,
   scheduleShieldModeExpiry,
 } from '../../core/scheduler';
+import { jsonError, jsonSuccess } from '../../routes/response';
 
 export const getShieldModeStatus = async (c: HonoContext) => {
   const requestContext = await getRuntimeRequestContext(c);
@@ -28,29 +29,17 @@ export const getShieldModeStatus = async (c: HonoContext) => {
   );
   const config = await getShieldModeConfig(requestContext.subredditId);
 
-  return c.json(
-    {
-      success: true,
-      data: {
-        session,
-        config,
-        counters: session.counters,
-      },
-    },
-    200
-  );
+  return jsonSuccess(c, {
+    session,
+    config,
+    counters: session.counters,
+  });
 };
 
 export const activateShieldModeHandler = async (c: HonoContext) => {
   const payload = validateActivateShieldModePayload(await c.req.json());
   if (!payload.ok) {
-    return c.json(
-      {
-        success: false,
-        errors: payload.errors,
-      },
-      400
-    );
+    return jsonError(c, payload.errors);
   }
 
   const requestContext = await getRuntimeRequestContext(c);
@@ -82,29 +71,22 @@ export const activateShieldModeHandler = async (c: HonoContext) => {
       ]
     : [];
 
-  return c.json(
+  return jsonSuccess(
+    c,
     {
-      success: true,
-      message: `Shield Mode activated for ${payload.data.durationHours} hour(s).`,
-      data: {
-        session: scheduledSession,
-        appliedRules,
-      },
+      session: scheduledSession,
+      appliedRules,
     },
-    200
+    {
+      message: `Shield Mode activated for ${payload.data.durationHours} hour(s).`,
+    }
   );
 };
 
 export const deactivateShieldModeHandler = async (c: HonoContext) => {
   const payload = validateDeactivateShieldModePayload(await c.req.json());
   if (!payload.ok) {
-    return c.json(
-      {
-        success: false,
-        errors: payload.errors,
-      },
-      400
-    );
+    return jsonError(c, payload.errors);
   }
 
   const requestContext = await getRuntimeRequestContext(c);
@@ -119,28 +101,21 @@ export const deactivateShieldModeHandler = async (c: HonoContext) => {
     payload.data.reason ?? null
   );
 
-  return c.json(
+  return jsonSuccess(
+    c,
     {
-      success: true,
-      message: 'Shield Mode deactivated.',
-      data: {
-        session,
-      },
+      session,
     },
-    200
+    {
+      message: 'Shield Mode deactivated.',
+    }
   );
 };
 
 export const updateShieldModeConfigHandler = async (c: HonoContext) => {
   const payload = validateShieldModeConfigPatch(await c.req.json());
   if (!payload.ok) {
-    return c.json(
-      {
-        success: false,
-        errors: payload.errors,
-      },
-      400
-    );
+    return jsonError(c, payload.errors);
   }
 
   const requestContext = await getRuntimeRequestContext(c);
@@ -150,15 +125,14 @@ export const updateShieldModeConfigHandler = async (c: HonoContext) => {
     payload.data
   );
 
-  return c.json(
+  return jsonSuccess(
+    c,
     {
-      success: true,
-      message: 'Shield Mode config updated.',
-      data: {
-        config,
-      },
+      config,
     },
-    200
+    {
+      message: 'Shield Mode config updated.',
+    }
   );
 };
 
@@ -167,13 +141,7 @@ export const getShieldModeAuditHandler = async (c: HonoContext) => {
   const limit = validateAuditLimit(c.req.query('limit'));
   const logs = await getShieldModeAuditLogs(requestContext.subredditId, limit);
 
-  return c.json(
-    {
-      success: true,
-      data: {
-        logs,
-      },
-    },
-    200
-  );
+  return jsonSuccess(c, {
+    logs,
+  });
 };

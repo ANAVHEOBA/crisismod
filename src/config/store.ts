@@ -188,3 +188,10 @@ export const readJson = async <T>(key: string, fallback: T): Promise<T> => {
 export const writeJson = async <T>(key: string, value: T) => {
   await writeString(key, JSON.stringify(value));
 };
+
+export const resetStoreForTests = () => {
+  localStore.clear();
+  hasLoggedRedisReadFallback = false;
+  hasLoggedRedisWriteFallback = false;
+  hasLoggedExternalRedisFailure = false;
+};
